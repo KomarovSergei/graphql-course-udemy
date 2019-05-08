@@ -18,22 +18,40 @@ const users = [{
 }]
 
 const posts = [{
-  id: '1',
-  title: 'post1',
-  body: 'post1 body',
-  published: false,
-  author: '1'
-}, {
+    id: '1',
+    title: 'post1',
+    body: 'post1 body',
+    published: false,
+    author: '1'
+  }, {
     id: '2',
     title: 'post2',
     body: 'post2 body',
     published: false,
     author: '2'
-}, {
+  }, {
     id: '3',
     title: 'post3',
     body: 'post3 body',
     published: true,
+    author: '3'
+  }]
+
+const comments = [{
+    id: '1',
+    text: 'text1',
+    author: '1'
+}, {
+    id: '2',
+    text: 'text2',
+    author: '2'
+}, {
+    id: '3',
+    text: 'text3',
+    author: '1'
+}, {
+    id: '4',
+    text: 'text4',
     author: '3'
 }]
 
@@ -42,6 +60,7 @@ const typeDefs = `
   type Query {
     users(query: String): [User!]!
     posts(query: String): [Post!]!
+    comments: [Comment!]!
     me: User!
     post: Post!
   }
@@ -52,6 +71,7 @@ const typeDefs = `
     email: String!
     age: Int
     posts: [Post!]!
+    comments: [Comment!]!
   }
 
   type Post {
@@ -61,11 +81,20 @@ const typeDefs = `
     published: Boolean!
     author: User!
   }
+
+  type Comment {
+    id: ID!
+    text: String!
+    author: User!
+  }
 `
 
 // resolvers
 const resolvers = {
   Query: {
+    comments() {
+      return comments
+    },
     users(parent, args, ctx, info) {
       if(!args.query){
         return users;
@@ -106,6 +135,14 @@ const resolvers = {
   User: {
     posts(parent, args, ctx, info) {
       return posts.filter(post => post.author === parent.id)
+    },
+    comments(parent, args, cts, info) {
+      return comments.filter(comment => comment.author === parent.id)
+    }
+  },
+  Comment: {
+    author(parent, args, ctx, info) {
+      return users.find(user => user.id === parent.author)
     }
   }
 }
